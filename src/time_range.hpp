@@ -5,6 +5,7 @@
 #include <userver/utils/time_of_day.hpp>
 #include <userver/formats/json/value.hpp>
 #include <userver/formats/parse/to.hpp>
+#include <userver/formats/serialize/to.hpp>
 
 namespace lavka
 {
@@ -27,5 +28,8 @@ public:
 
 TimeRange Parse(const userver::formats::json::Value& json,
                  userver::formats::parse::To<TimeRange>);
+
+userver::formats::json::Value Serialize(const TimeRange& data,
+                               userver::formats::serialize::To<userver::formats::json::Value>);
 
 } // namespace lavka

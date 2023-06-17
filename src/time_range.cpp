@@ -1,5 +1,8 @@
 #include <regex>
 
+#include <fmt/format.h>
+#include <userver/formats/json/value_builder.hpp>
+
 #include "time_range.hpp"
 
 using namespace lavka;
@@ -28,4 +31,11 @@ TimeRange lavka::Parse(const userver::formats::json::Value& json,
         return TimeRange(start_time, end_time);
     } else {
     }
+}
+
+userver::formats::json::Value lavka::Serialize(const TimeRange& data,
+                               userver::formats::serialize::To<userver::formats::json::Value>) {
+    std::string result_str(fmt::format("{}", data.GetStart()) + "-" + fmt::format("{}", data.GetEnd()));
+
+    return userver::formats::json::Value::Builder(result_str).ExtractValue();
 }
