@@ -1,6 +1,8 @@
 name: CI
 
 'on':
+    schedule:
+      - cron: '30 5 * * 1'  # Every Monday at 5:30
     pull_request:
     push:
         branches:
@@ -15,26 +17,26 @@ jobs:
             fail-fast: false
             matrix:
                 include:
-                  - os: ubuntu-20.04
+                  - os: ubuntu-22.04
                     make: test-debug
-                    info: g++-9 + test-debug
+                    info: g++-11 + test-debug
 
-                  - os: ubuntu-20.04
+                  - os: ubuntu-22.04
                     make: test-release
-                    info: g++-9 + test-release
+                    info: g++-11 + test-release
 
         name: '${{matrix.os}}: ${{matrix.info}}'
         runs-on: ${{matrix.os}}
 
         steps:
-          - uses: actions/checkout@v2
+          - uses: actions/checkout@v4
             with:
                 submodules: true
 
           - name: Reuse ccache directory
-            uses: actions/cache@v2
+            uses: actions/cache@v4
             with:
-                path: ~/.ccache
+                path: ~/.cache/ccache
                 key: '${{matrix.os}} ${{matrix.info}} ccache-dir ${{github.ref}} run-${{github.run_number}}'
                 restore-keys: |
                     ${{matrix.os}} ${{matrix.info}} ccache-dir ${{github.ref}} run-'
@@ -42,8 +44,15 @@ jobs:
 
           - name: Install packages
             run: |
+                (cd third_party && git clone -b develop --single-branch --depth 1 https://github.com/userver-framework/userver.git)
                 sudo apt update
-                sudo apt install --allow-downgrades -y pep8 $(cat third_party/userver/scripts/docs/en/deps/${{matrix.os}}.md | tr '\n' ' ')
+                sudo apt install --allow-downgrades -y postgresql $(cat third_party/userver/scripts/docs/en/deps/${{matrix.os}}.md | tr '\n' ' ')
+                python3 -m pip install -r requirements.txt
+
+          - name: Reinstall postgres 14
+            run: |
+                sudo apt purge libpq5 libpq-dev postgresql-*
+                sudo apt install -y postgresql-14 postgresql-client-14 postgresql-server-dev-14
 
           - name: Setup ccache
             run: |
@@ -62,16 +71,19 @@ jobs:
 
           - name: Test run after install
             if: matrix.make == 'test-release'
-            run: |
-                ./local_installation/bin/lavka --config=./local_installation/etc/lavka/static_config.yaml &
+            run: >-
+                ./local_installation/bin/pg_service_template
+                --config=./local_installation/etc/pg_service_template/static_config.yaml
+                --config_vars=./local_installation/etc/pg_service_template/config_vars.yaml
+                &
 
           - name: Check work run service
             if: matrix.make == 'test-release'
             run: |
-                ps aux | grep lavka | grep config && curl http://localhost:8080/ping -v
+                ps aux | grep pg_service_template | grep config && curl http://localhost:8080/ping -v
 
           - name: Stop all
             if: matrix.make == 'test-release'
             run: |
-                killall lavka
-
+                killall pg_service_template
+                

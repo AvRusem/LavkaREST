@@ -1,7 +1,8 @@
-
 name: Docker build
 
 'on':
+    schedule:
+      - cron: '30 5 * * 1'  # Every Monday at 5:30
     pull_request:
     push:
         branches:
@@ -9,19 +10,16 @@ name: Docker build
           - develop
           - feature/**
 
-env:
-    CMAKE_OPTIONS: -DUserverGrpc_VERSION=1.51.0
-
 jobs:
     tests:
         runs-on: ubuntu-latest
         steps:
-          - uses: actions/checkout@v2
+          - uses: actions/checkout@v4
             with:
                 submodules: true
 
           - name: Reuse ccache directory
-            uses: actions/cache@v2
+            uses: actions/cache@v4
             with:
                 path: .ccache
                 key: 'ccache-dir-${{github.ref}}_run-${{github.run_number}}'
@@ -29,8 +27,13 @@ jobs:
                     ccache-dir-${{github.ref}}_run-
                     ccache-
 
+          - name: Install docker-compose
+            run: |
+                sudo apt update
+                sudo apt install --allow-downgrades -y docker-compose
+
           - name: Setup ccache
-            run: docker-compose run --rm lavka-container bash -c 'ccache -M 2.0GB && ccache -s'
+            run: docker-compose run --rm pg_service_template-container bash -c 'ccache -M 2.0GB && ccache -s'
 
           - name: Cmake
             run: make docker-cmake-release
@@ -40,4 +43,3 @@ jobs:
 
           - name: Run tests
             run: make docker-test-release
-
