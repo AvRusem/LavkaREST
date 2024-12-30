@@ -3,11 +3,9 @@
 REST API C++ service that uses [userver framework](https://github.com/userver-framework/userver) with PostgreSQL. 
 The task is in `TASK.md`, and OpenAPI is in `openapi.json`.
 
-
 ## Download and Build
 
-1. Clone the service `git clone your-service-repo && cd your-service-repo && git submodule update --init`
-2. Configure according to the [documentation](https://userver.tech/d1/d03/md_en_userver_tutorial_build.html)
+Сonfigure according to the [documentation](https://userver.tech/de/dab/md_en_2userver_2build_2build.html)
 
 ## Makefile
 
@@ -17,8 +15,8 @@ Makefile contains typicaly useful targets for development:
 * `make build-release` - release build of the service with LTO
 * `make test-debug` - does a `make build-debug` and runs all the tests on the result
 * `make test-release` - does a `make build-release` and runs all the tests on the result
-* `make service-start-debug` - builds the service in debug mode and starts it
-* `make service-start-release` - builds the service in release mode and starts it
+* `make start-debug` - builds the service in debug mode and starts it
+* `make start-release` - builds the service in release mode and starts it
 * `make` or `make all` - builds and runs all the tests in release and debug modes
 * `make format` - autoformat all the C++ and Python sources
 * `make clean-` - cleans the object files
@@ -28,9 +26,11 @@ Makefile contains typicaly useful targets for development:
 * `make docker-COMMAND` - run `make COMMAND` in docker environment
 * `make docker-build-debug` - debug build of the service with all the assertions and sanitizers enabled in docker environment
 * `make docker-test-debug` - does a `make build-debug` and runs all the tests on the result in docker environment
-* `make docker-start-service-release` - does a `make install-release` and runs service in docker environment
-* `make docker-start-service-debug` - does a `make install-debug` and runs service in docker environment
+* `make docker-start-release` - does a `make install-release` and runs service in docker environment
+* `make docker-start-debug` - does a `make install-debug` and runs service in docker environment
 * `make docker-clean-data` - stop docker containers and clean database data
+
+Edit `Makefile.local` to change the default configuration and build options.
 
 ## License
 
