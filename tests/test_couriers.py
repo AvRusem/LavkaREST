@@ -192,3 +192,145 @@ async def test_get_courier_id_error(service_client):
     courier_id = 42
     response = await service_client.get(f'/couriers/{courier_id}')
     assert response.status == 404
+
+
+@pytest.mark.xfail(reason="GET /couriers not implemented yet")
+@pytest.mark.pgsql('couriers', files=['couriers_initial_data.sql'])
+async def test_get_couriers_success(service_client):
+    '''
+    Test successfully fetching couriers:
+    if limit > len(couriers) API will return len(couriers),
+        couriers after offset can be empty
+    '''
+
+    response = await service_client.get('/couriers')
+    assert response.status == 200
+    assert response.json() == {
+        "couriers": [
+            {
+                "courier_id": 1,
+                "courier_type": "FOOT",
+                "regions": [1, 2, 3],
+                "working_hours": ["09:00-18:00"]
+            }
+        ],
+        "limit": 1,
+        "offset": 0
+    }
+
+    response = await service_client.get('/couriers?offset=1')
+    assert response.status == 200
+    assert response.json() == {
+        "couriers": [
+            {
+                "courier_id": 2,
+                "courier_type": "BIKE",
+                "regions": [4, 5],
+                "working_hours": ["10:00-20:00"]
+            }
+        ],
+        "limit": 1,
+        "offset": 1
+    }
+
+    response = await service_client.get('/couriers?limit=2')
+    assert response.status == 200
+    assert response.json() == {
+        "couriers": [
+            {
+                "courier_id": 1,
+                "courier_type": "FOOT",
+                "regions": [1, 2, 3],
+                "working_hours": ["09:00-18:00"]
+            },
+            {
+                "courier_id": 2,
+                "courier_type": "BIKE",
+                "regions": [4, 5],
+                "working_hours": ["10:00-20:00"]
+            }
+        ],
+        "limit": 2,
+        "offset": 0
+    }
+
+    response = await service_client.get('/couriers?limit=3')
+    assert response.status == 200
+    assert response.json() == {
+        "couriers": [
+            {
+                "courier_id": 1,
+                "courier_type": "FOOT",
+                "regions": [1, 2, 3],
+                "working_hours": ["09:00-18:00"]
+            },
+            {
+                "courier_id": 2,
+                "courier_type": "BIKE",
+                "regions": [4, 5],
+                "working_hours": ["10:00-20:00"]
+            }
+        ],
+        "limit": 3,
+        "offset": 0
+    }
+
+    response = await service_client.get('/couriers?limit=2&offset=1')
+    assert response.status == 200
+    assert response.json() == {
+        "couriers": [
+            {
+                "courier_id": 2,
+                "courier_type": "BIKE",
+                "regions": [4, 5],
+                "working_hours": ["10:00-20:00"]
+            }
+        ],
+        "limit": 2,
+        "offset": 1
+    }
+
+    response = await service_client.get('/couriers?limit=2&offset=2')
+    assert response.status == 200
+    assert response.json() == {
+        "couriers": [
+        ],
+        "limit": 2,
+        "offset": 2
+    }
+
+
+@pytest.mark.xfail(reason="GET /couriers not implemented yet")
+@pytest.mark.pgsql('couriers', files=['couriers_initial_data.sql'])
+async def test_get_couriers_error(service_client):
+    '''
+    Test with errors:
+    Limit and offset must be numbers;
+    Limit and offset must be non-negative;
+    First limit is checked, if both are invalid
+        than limit will be mentioned in message
+    '''
+
+    response = await service_client.get('/couriers?limit=abc')
+    assert response.status == 400
+    assert response.json() == {"message": "limit must be non-negative number"}
+
+    response = await service_client.get('/couriers?offset=-1')
+    assert response.status == 400
+    assert response.json() == {"message": "offset must be non-negative number"}
+
+    response = await service_client.get('/couriers?limit=-1offset=a')
+    assert response.status == 400
+    assert response.json() == {"message": "limit must be non-negative number"}
+
+    response = await service_client.get('/couriers?limit=offset=')
+    assert response.status == 400
+    assert response.json() == {"message": "limit must be non-negative number"}
+
+    response = await service_client.get('/couriers?offset=')
+    assert response.status == 400
+    assert response.json() == {"message": "offset must be non-negative number"}
+
+    response = await service_client.get('/couriers?limit=[1, 2]')
+    assert response.status == 400
+    assert response.json() == {"message": "limit must be non-negative number"}
