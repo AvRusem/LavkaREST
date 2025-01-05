@@ -184,10 +184,16 @@ async def test_get_courier_id_error(service_client):
     courier_id = 'abc'
     response = await service_client.get(f'/couriers/{courier_id}')
     assert response.status == 400
+    assert response.json() == {
+        "message": "courier_id must be non-negative number"
+    }
 
     courier_id = ''
     response = await service_client.get(f'/couriers/{courier_id}')
     assert response.status == 400
+    assert response.json() == {
+        "message": "courier_id must be non-negative number"
+    }
 
     courier_id = 42
     response = await service_client.get(f'/couriers/{courier_id}')
