@@ -3,7 +3,7 @@ import pytest
 from testsuite.databases import pgsql
 
 
-@pytest.mark.xfail(reason="Feature not implemented yet")
+@pytest.mark.xfail(reason="POST /couriers not implemented yet")
 @pytest.mark.pgsql('couriers')
 async def test_create_couriers_success(service_client):
     '''
@@ -55,7 +55,7 @@ async def test_create_couriers_success(service_client):
     ]
 
 
-@pytest.mark.xfail(reason="Feature not implemented yet")
+@pytest.mark.xfail(reason="POST /couriers not implemented yet")
 async def test_create_couriers_error(service_client):
     '''
     Test with errors:
@@ -116,7 +116,7 @@ async def test_create_couriers_error(service_client):
     assert result[0] == 0
 
 
-@pytest.mark.xfail(reason="Feature not implemented yet")
+@pytest.mark.xfail(reason="POST /couriers not implemented yet")
 @pytest.mark.pgsql('couriers', files=['couriers_initial_data.sql'])
 async def test_create_couriers_unique_id(service_client):
     '''
