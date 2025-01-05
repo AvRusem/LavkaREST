@@ -152,3 +152,43 @@ async def test_create_couriers_unique_id(service_client):
     cursor.execute("SELECT COUNT(*) FROM couriers.couriers")
     result = cursor.fetchone()
     assert result[0] == start_num
+
+
+@pytest.mark.xfail(reason="GET /couriers/{courier_id} not implemented yet")
+@pytest.mark.pgsql('couriers', files=['couriers_initial_data.sql'])
+async def test_get_courier_id_success(service_client):
+    '''
+    Test successfully fetching courier by id
+    '''
+
+    courier_id = 1
+    response = await service_client.get('/couriers/{courier_id}')
+    assert response.status == 200
+    assert response.json() == {
+        "courier_id": 1,
+        "courier_type": "FOOT",
+        "regions": [1, 2, 3],
+        "working_hours": ["09:00-18:00"]
+    }
+
+
+@pytest.mark.xfail(reason="GET /couriers/{courier_id} not implemented yet")
+@pytest.mark.pgsql('couriers', files=['couriers_initial_data.sql'])
+async def test_get_courier_id_error(service_client):
+    '''
+    Test with errors:
+    Bad request(400) when courier_id is invalid;
+    Not Found(404) when courier with courier_id doesn't exist
+    '''
+
+    courier_id = 'abc'
+    response = await service_client.get(f'/couriers/{courier_id}')
+    assert response.status == 400
+
+    courier_id = ''
+    response = await service_client.get(f'/couriers/{courier_id}')
+    assert response.status == 400
+
+    courier_id = 42
+    response = await service_client.get(f'/couriers/{courier_id}')
+    assert response.status == 404
