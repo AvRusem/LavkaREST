@@ -269,10 +269,10 @@ async def test_get_couriers_error(service_client):
     response = await service_client.get('/couriers?offset=-1')
     assert response.status == 400
 
-    response = await service_client.get('/couriers?limit=-1offset=a')
+    response = await service_client.get('/couriers?limit=-1&offset=a')
     assert response.status == 400
 
-    response = await service_client.get('/couriers?limit=offset=')
+    response = await service_client.get('/couriers?limit=&offset=')
     assert response.status == 400
 
     response = await service_client.get('/couriers?offset=')
