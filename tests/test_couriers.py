@@ -13,13 +13,11 @@ async def test_create_couriers_success(service_client):
     payload = {
         "couriers": [
             {
-                "courier_id": 1,
                 "courier_type": "FOOT",
                 "regions": [1, 2, 3],
                 "working_hours": ["09:00-18:00"]
             },
             {
-                "courier_id": 2,
                 "courier_type": "BIKE",
                 "regions": [4, 5],
                 "working_hours": ["10:00-20:00"]
@@ -68,7 +66,6 @@ async def test_create_couriers_error(service_client):
     payload = {
         "couriers": [
             {
-                "courier_id": 1,
                 "courier_type": "DRONE",
                 "regions": [1],
                 "working_hours": ["09:00-18:00"]
@@ -83,7 +80,6 @@ async def test_create_couriers_error(service_client):
     payload = {
         "couriers": [
             {
-                "courier_id": 1,
                 "courier_type": "FOOT",
                 "regions": [],
                 "working_hours": ["09:00-18:00"]
@@ -98,7 +94,6 @@ async def test_create_couriers_error(service_client):
     payload = {
         "couriers": [
             {
-                "courier_id": 1,
                 "courier_type": "FOOT",
                 "regions": [1, 2],
                 "working_hours": []
@@ -114,44 +109,6 @@ async def test_create_couriers_error(service_client):
     cursor.execute("SELECT COUNT(*) FROM couriers.couriers")
     result = cursor.fetchone()
     assert result[0] == 0
-
-
-@pytest.mark.xfail(reason="POST /couriers not implemented yet")
-@pytest.mark.pgsql('couriers', files=['couriers_initial_data.sql'])
-async def test_create_couriers_unique_id(service_client):
-    '''
-    Test got error creating a courier with not unique id:
-    ID must be unique, on BadRequest nothing changes
-    '''
-
-    cursor = pgsql['couriers'].cursor()
-    cursor.execute("SELECT COUNT(*) FROM couriers.couriers")
-    result = cursor.fetchone()
-    start_num = result[0]
-
-    payload = {
-        "couriers": [
-            {
-                "courier_id": 1,
-                "courier_type": "FOOT",
-                "regions": [1],
-                "working_hours": ["09:00-18:00"]
-            },
-            {
-                "courier_id": 10,
-                "courier_type": "BIKE",
-                "regions": [1],
-                "working_hours": ["09:00-18:00"]
-            }
-        ]
-    }
-    response = await service_client.post('/couriers', json=payload)
-    assert response.status == 400
-    assert response.json() == {"message": "courier_id must be unique"}
-
-    cursor.execute("SELECT COUNT(*) FROM couriers.couriers")
-    result = cursor.fetchone()
-    assert result[0] == start_num
 
 
 @pytest.mark.xfail(reason="GET /couriers/{courier_id} not implemented yet")
