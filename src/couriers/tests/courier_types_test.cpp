@@ -1,8 +1,8 @@
-#include "../courier_types.hpp"
+#include "couriers/courier_types.hpp"
 
-#include <userver/utest/utest.hpp>
 #include <userver/formats/json/value.hpp>
 #include <userver/formats/json/value_builder.hpp>
+#include <userver/utest/utest.hpp>
 
 using namespace userver;
 

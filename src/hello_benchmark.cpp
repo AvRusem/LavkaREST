@@ -14,8 +14,7 @@ void HelloBenchmark(benchmark::State& state) {
 
     for (auto _ : state) {
       const auto name = kNames[i++ % std::size(kNames)];
-      auto result = lavka::SayHelloTo(
-          name, lavka::UserType::kFirstTime);
+      auto result = lavka::SayHelloTo(name, lavka::UserType::kFirstTime);
       benchmark::DoNotOptimize(result);
     }
   });

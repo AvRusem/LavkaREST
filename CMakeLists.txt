@@ -32,11 +32,13 @@ add_library(${PROJECT_NAME}_objs OBJECT
     src/couriers/courier_types.hpp
 )
 target_link_libraries(${PROJECT_NAME}_objs PUBLIC userver::postgresql)
+target_include_directories(${PROJECT_NAME}_objs PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 
 # The Service
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}_objs)
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 
 # Unit Tests
@@ -46,6 +48,7 @@ add_executable(${PROJECT_NAME}_unittest
     src/couriers/tests/courier_types_test.cpp
 )
 target_link_libraries(${PROJECT_NAME}_unittest PRIVATE ${PROJECT_NAME}_objs userver::utest)
+target_include_directories(${PROJECT_NAME}_unittest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 add_google_tests(${PROJECT_NAME}_unittest)
 
 
@@ -54,6 +57,7 @@ add_executable(${PROJECT_NAME}_benchmark
     src/hello_benchmark.cpp
 )
 target_link_libraries(${PROJECT_NAME}_benchmark PRIVATE ${PROJECT_NAME}_objs userver::ubench)
+target_include_directories(${PROJECT_NAME}_benchmark PRIVATE ${CMAKE_SOURCE_DIR}/src)
 add_google_benchmark_tests(${PROJECT_NAME}_benchmark)
 
 
