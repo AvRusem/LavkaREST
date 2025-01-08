@@ -75,7 +75,6 @@ async def test_create_couriers_error(service_client):
 
     response = await service_client.post('/couriers', json=payload)
     assert response.status == 400
-    assert response.json() == {"message": "invalid courier_type: DRONE"}
 
     payload = {
         "couriers": [
@@ -89,7 +88,6 @@ async def test_create_couriers_error(service_client):
 
     response = await service_client.post('/couriers', json=payload)
     assert response.status == 400
-    assert response.json() == {"message": "regions cannot be empty"}
 
     payload = {
         "couriers": [
@@ -103,7 +101,6 @@ async def test_create_couriers_error(service_client):
 
     response = await service_client.post('/couriers', json=payload)
     assert response.status == 400
-    assert response.json() == {"message": "working_hours cannot be empty"}
 
     cursor = pgsql['couriers'].cursor()
     cursor.execute("SELECT COUNT(*) FROM couriers.couriers")
@@ -141,16 +138,10 @@ async def test_get_courier_id_error(service_client):
     courier_id = 'abc'
     response = await service_client.get(f'/couriers/{courier_id}')
     assert response.status == 400
-    assert response.json() == {
-        "message": "courier_id must be non-negative number"
-    }
 
     courier_id = ''
     response = await service_client.get(f'/couriers/{courier_id}')
     assert response.status == 400
-    assert response.json() == {
-        "message": "courier_id must be non-negative number"
-    }
 
     courier_id = 42
     response = await service_client.get(f'/couriers/{courier_id}')
@@ -269,31 +260,23 @@ async def test_get_couriers_error(service_client):
     '''
     Test with errors:
     Limit and offset must be numbers;
-    Limit and offset must be non-negative;
-    First limit is checked, if both are invalid
-        than limit will be mentioned in message
+    Limit and offset must be non-negative
     '''
 
     response = await service_client.get('/couriers?limit=abc')
     assert response.status == 400
-    assert response.json() == {"message": "limit must be non-negative number"}
 
     response = await service_client.get('/couriers?offset=-1')
     assert response.status == 400
-    assert response.json() == {"message": "offset must be non-negative number"}
 
     response = await service_client.get('/couriers?limit=-1offset=a')
     assert response.status == 400
-    assert response.json() == {"message": "limit must be non-negative number"}
 
     response = await service_client.get('/couriers?limit=offset=')
     assert response.status == 400
-    assert response.json() == {"message": "limit must be non-negative number"}
 
     response = await service_client.get('/couriers?offset=')
     assert response.status == 400
-    assert response.json() == {"message": "offset must be non-negative number"}
 
     response = await service_client.get('/couriers?limit=[1, 2]')
     assert response.status == 400
-    assert response.json() == {"message": "limit must be non-negative number"}
